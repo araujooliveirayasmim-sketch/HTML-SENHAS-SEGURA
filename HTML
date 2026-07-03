@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validador de Senhas Seguras</title>
+    <style>
+        :root {
+            --bg-color: #F0F8FF;
+            --card-bg: #FFE4E1;
+            --text-color: #000000;
+            --primary: #C0C0C0;
+            --danger: ##FF0000;
+            --warning: #f39c12;
+            --success: #00000;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(#F0F8FF);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            margin-bottom: 30px;
+            color: #666;
+            text-align: center;
+        }
+
+        /* Sistema de Abas (4 Opções) */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Container de Conteúdo */
+        .container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+
+        .page-content {
+            display: none;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        /* Inputs e Elementos Comuns */
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        /* Feedback de Força */
+        .strength-meter {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+        }
+
+        .requirements {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .requirements li {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #7f8c8d;
+        }
+
+        .requirements li.valid {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Estilos da Opção 3 (Frase de Senha) */
+        .passphrase-box {
+            background: #eef2f7;
+            padding: 15px;
+            border-left: 5px solid var(--primary);
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
+        /* Estilos da Opção 4 (Simulador de Ataque) */
+        .time-box {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Validador de Senhas Interativo</h1>
+    <p class="subtitle">Descubra se sua senha é realmente segura usando 4 abordagens diferentes.</p>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(1)">1. Checklist Tradicional</button>
+        <button class="tab-btn" onclick="switchTab(2)">2. Barra de Força</button>
+        <button class="tab-btn" onclick="switchTab(3)">3. Frase de Senha</button>
+        <button class="tab-btn" onclick="switchTab(4)">4. Tempo de Hacker</button>
+    </div>
+
+    <div class="container">
+        
+        <div id="page1" class="page-content active">
+            <h3>Opção 1: Critérios Rigorosos</h3>
+            <p>Uma senha segura tradicional precisa misturar diferentes tipos de caracteres.</p>
+            <input type="password" id="input1" placeholder="Digite sua senha..." oninput="validatePage1()">
+            <ul class="requirements" id="reqList1">
+                <li id="p1-len">❌ Pelo menos 8 caracteres</li>
+                <li id="p1-upper">❌ Pelo menos uma letra maiúscula</li>
+                <li id="p1-lower">❌ Pelo menos uma letra minúscula</li>
+                <li id="p1-num">❌ Pelo menos um número</li>
+                <li id="p1-spec">❌ Pelo menos um caractere especial (@, #, $, etc.)</li>
+            </ul>
+        </div>
+
+        <div id="page2" class="page-content">
+            <h3>Opção 2: Medidor de Força em Tempo Real</h3>
+            <p>Veja a cor e o tamanho da barra mudar conforme a complexidade aumenta.</p>
+            <input type="password" id="input2" placeholder="Crie sua senha..." oninput="validatePage2()">
+            <div class="strength-meter">
+                <div id="bar2" class="strength-bar"></div>
+            </div>
+            <p id="text2" style="font-weight: bold; text-align: center; color: #7f8c8d;">Digite algo...</p>
+        </div>
+
+        <div id="page3" class="page-content">
+            <h3>Opção 3: O conceito de "Passphrase" (Frase de Senha)</h3>
+            <p>Especialistas modernos dizem que o **comprimento** importa mais do que símbolos difíceis. Tente digitar uma frase longa com espaços (Ex: <code>gatos gostam de batata frita</code>).</p>
+            <input type="text" id="input3" placeholder="Digite uma frase longa..." oninput="validatePage3()">
+            <div class="passphrase-box">
+                <span id="text3">A força da frase depende do tamanho e quantidade de palavras.</span>
+            </div>
+        </div>
+
+        <div id="page4" class="page-content">
+            <h3>Opção 4: Quanto tempo um Hacker levaria?</h3>
+            <p>Descubra o tempo estimado que um computador levaria para adivinhar sua senha por "força bruta".</p>
+            <input type="text" id="input4" placeholder="Teste uma senha aqui..." oninput="validatePage4()">
+            <div id="timeBox4" class="time-box" style="background: #eee; color: #333;">
+                Aguardando senha...
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Função para alternar entre as 4 páginas/opções
+        function switchTab(pageNum) {
+            document.querySelectorAll('.tab-btn').forEach((btn, index) => {
+                btn.classList.toggle('active', index === pageNum - 1);
+            });
+            document.querySelectorAll('.page-content').forEach((page, index) => {
+                page.classList.toggle('active', index === pageNum - 1);
+            });
+        }
+
+        // Lógica da Opção 1: Checklist
+        function validatePage1() {
+            const val = document.getElementById('input1').value;
+            
+            updateReq('p1-len', val.length >= 8);
+            updateReq('p1-upper', /[A-Z]/.test(val));
+            updateReq('p1-lower', /[a-z]/.test(val));
+            updateReq('p1-num', /[0-9]/.test(val));
+            updateReq('p1-spec', /[^A-Za-z0-9]/.test(val));
+        }
+
+        function updateReq(id, isValid) {
+            const el = document.getElementById(id);
+            if(isValid) {
+                el.classList.add('valid');
+                el.innerText = el.innerText.replace('❌', '✔️');
+            } else {
+                el.classList.remove('valid');
+                el.innerText = el.innerText.replace('✔️', '❌');
+            }
+        }
+
+        // Lógica da Opção 2: Barra de Força
+        function validatePage2() {
+            const val = document.getElementById('input2').value;
+            const bar = document.getElementById('bar2');
+            const text = document.getElementById('text2');
+            
+            let score = 0;
+            if (val.length > 0) score++;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            if(val.length === 0) {
+                bar.style.width = '0%';
+                text.innerText = "Digite algo...";
+                text.style.color = '#7f8c8d';
+            } else if(score <= 2) {
+                bar.style.width = '25%';
+                bar.style.background = 'var(--danger)';
+                text.innerText = "Senha Fraca ❌";
+                text.style.color = 'var(--danger)';
+            } else if (score <= 4) {
+                bar.style.width = '60%';
+                bar.style.background = 'var(--warning)';
+                text.innerText = "Senha Média ⚠️";
+                text.style.color = 'var(--warning)';
+            } else {
+                bar.style.width = '100%';
+                bar.style.background = 'var(--success)';
+                text.innerText = "Senha Super Segura! ✔️";
+                text.style.color = 'var(--success)';
+            }
+        }
+
+        // Lógica da Opção 3: Passphrase
+        function validatePage3() {
+            const val = document.getElementById('input3').value;
+            const text = document.getElementById('text3');
+            const words = val.trim().split(/\s+/).filter(w => w.length > 0).length;
+
+            if(val.length === 0) {
+                text.innerHTML = "A força da frase depende do tamanho.";
+            } else if (val.length < 12 || words < 3) {
+                text.innerHTML = "❌ Muito curta. Adicione mais palavras comuns para criar uma frase longa e fácil de lembrar.";
+            } else if (val.length >= 12 && words >= 4) {
+                text.innerHTML = "✔️ Excelente! Frases longas com espaços são extremamente difíceis de hackear e fáceis de memorizar.";
+            } else {
+                text.innerHTML = "⚠️ Está melhorando. Tente colocar pelo menos 4 palavras.";
+            }
+        }
+
+        // Lógica da Opção 4: Simulador Hacker (Simplificado baseado em entropia)
+        function validatePage4() {
+            const val = document.getElementById('input4').value;
+            const box = document.getElementById('timeBox4');
+
+            if(val.length === 0) {
+                box.style.background = '#eee';
+                box.style.color = '#333';
+                box.innerHTML = "Aguardando senha...";
+                return;
+            }
+
+            let len = val.length;
+            
+            if(len < 5) {
+                box.style.background = 'var(--danger)';
+                box.style.color = 'white';
+                box.innerHTML = "Imediato! (Menos de 1 segundo)";
+            } else if (len >= 5 && len <= 7) {
+                box.style.background = 'var(--danger)';
+                box.style.color = 'white';
+                box.innerHTML = "Alguns minutos ou horas";
+            } else if (len >= 8 && len <= 11) {
+                box.style.background = 'var(--warning)';
+                box.style.color = 'white';
+                box.innerHTML = "De alguns meses a poucos anos";
+            } else {
+                box.style.background = 'var(--success)';
+                box.style.color = 'white';
+                box.innerHTML = "Séculos! Praticamente inquebrável 🚀";
+            }
+        }
+    </script>
+</body>
+</html>
